@@ -39,7 +39,7 @@ def is_real_room(ln):
 
     # if most_common_5
     print(line, m5, "\n\n")
-    return m5 == checksum, sector
+    return m5[:5] == checksum, sector
 
 
 for line in file:
