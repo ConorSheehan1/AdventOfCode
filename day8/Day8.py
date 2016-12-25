@@ -1,51 +1,75 @@
-def shift(row, length):
-    return row[-length:] + row[:-length]
+class Screen:
+    def __init__(self, width, height):
+        self.screen = []
+        for col in range(height):
+            self.screen.append(["."]*width)
+
+        # self.screen = [["."]*width]*height
+
+    def shift(self, row, length):
+        return row[-length:] + row[:-length]
+
+    def shift_row(self, row, length):
+        self.screen[row] = self.shift(self.screen[row], length)
+
+    # shift column in place
+    def shift_col(self, col_index, length):
+        l = []
+        for col in self.screen:
+            l.append(col[col_index])
+        l = self.shift(l, length)
+        for i in range(len(l)):
+            self.screen[i][col_index] = l[i]
+
+    def rect(self, x, y):
+        # rectangle should b x wide and y tall
+        for i in range(x):
+            for j in range(y):
+                self.screen[j][i] = "#"
+
+    def handle(self, ln):
+        if ln.startswith("rect"):
+            # split on x to get height rectangle should be
+            ln = ln.split("x")
+            # split left value on space to get width rectangle should be
+            print("rect", int(ln[0].split(" ")[-1]), int(ln[1]))
+            self.rect(int(ln[0].split(" ")[-1]), int(ln[1]))
+            self.print_screen()
+
+        elif ln.startswith("rotate row"):
+            ln = ln.split(" ")
+            # go from 2 on to remove "x=", choose -3 to skip "by"
+            print("row", int(ln[-3][2:]), int(ln[-1]))
+            self.shift_row(int(ln[-3][2:]), int(ln[-1]))
+            self.print_screen()
+
+        elif ln.startswith("rotate column"):
+            ln = ln.split(" ")
+            print("col", int(ln[-3][2:]), int(ln[-1]))
+            self.shift_col(int(ln[-3][2:]), int(ln[-1]))
+            self.print_screen()
+
+    def print_screen(self):
+        for col in self.screen:
+            print(col)
+
+    def pixel_count(self):
+        count = 0
+        for col in self.screen:
+            count += col.count("#")
+        return count
 
 
-def shift_row(matrix, row, length):
-    matrix[row] = shift(matrix[row], length)
-
-
-# shift column in place
-def shift_col(matrix, col_index, length):
-    l = []
-    for col in matrix:
-        l.append(col[col_index])
-    l = shift(l, length)
-    for i in range(len(l)):
-        matrix[i][col_index] = l[i]
-
-
-def rect(matrix, x, y):
-    # rectangle should b x wide and y tall
-    for i in range(x):
-        for j in range(y):
-            matrix[j][i] = "#"
-
-mat = [[1,2,3],[4,5,6],[7,8,9]]
-shift_col(mat, 0, 1)
-print(mat)
-shift_row(mat, 0, 1)
-print(mat)
-rect(mat, 1, 1)
-print(mat)
-
-
-def handle(ln):
-    if ln.startswith("rect"):
-        # last char is \n so use -4 and -2, not -3, -1 for integer values in line
-        print("rect", ln[-4], ln[-2])
-    elif ln.startswith("rotate row"):
-        ln = ln.split(" ")
-        print("row", ln[-3][2:], ln[-1])
-    elif ln.startswith("rotate column"):
-        ln = ln.split(" ")
-        print("column", ln[-3][2:], ln[-1])
+s = Screen(50, 6)
+# s = Screen(5, 5)
+s.print_screen()
 
 file = open("input.txt")
 for line in file:
     print(line[:-1])
-    handle(line)
-    # print(line)
+    s.handle(line)
 
+s.print_screen()
+print(s.pixel_count())
 
+# 47 too low
